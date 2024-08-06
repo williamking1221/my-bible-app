@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../utils/firebaseConfig';
-import { Typography, Container } from '@mui/material';
+import { Typography, Container, Button, Box } from '@mui/material';
 import TopBar from '../components/TopBar';
+import Link from 'next/link';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -25,7 +26,13 @@ const Dashboard: React.FC = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Welcome to your Dashboard
       </Typography>
-      {/* Add more content here */}
+      <Box sx={{ mt:2 }}>
+        <Link href="/create-study" passHref>
+          <Button variant="contained" color="primary" fullWidth>
+            Create Bible Study
+          </Button>
+        </Link>
+      </Box>
     </Container>
   );
 };
