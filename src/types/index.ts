@@ -17,3 +17,14 @@ export interface BibleStudy {
 export interface StudyProps {
     study: any; // Define a proper type for your study data
   }
+
+export interface Verse {
+    id: number;
+    chapter: number;
+    o: number;
+    entries: Entry[];
+  }
+
+export type Entry = 
+  | { type: 'text'; text: string }
+  | { type: 'header'; level: number; text: string };

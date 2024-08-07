@@ -13,7 +13,7 @@ const CreateStudyForm: React.FC = () => {
   const [endBook, setEndBook] = useState('');
   const [endChapter, setEndChapter] = useState(1);
   const [endVerse, setEndVerse] = useState(1);
-  const [defaultVersion, setDefaultVersion] = useState<string>("ESV");
+  const [defaultVersion, setDefaultVersion] = useState<string>("NIV");
   const [additionalVersions, setAdditionalVersions] = useState<string[]>([]);
 
   const router = useRouter();
@@ -35,7 +35,7 @@ const CreateStudyForm: React.FC = () => {
     setEndBook(selectedBook); // Reset end book to match start
     setEndChapter(1);
     setEndVerse(1);
-    setDefaultVersion("NIV");
+    setDefaultVersion(defaultVersion);
   };
 
   const handleStartChapterChange = (event: SelectChangeEvent<string>) => {
