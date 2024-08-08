@@ -12,6 +12,13 @@ export interface BibleStudy {
     createdAt?: Date; 
     updatedAt?: Date;
     creatorId?: string;
+    users: string[];
+  }
+export interface User {
+    displayName: string;
+    email: string;
+    photoURL: string;
+    studies: string[]; 
   }
 
 export interface StudyProps {

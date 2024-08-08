@@ -15,6 +15,8 @@ const CreateStudyForm: React.FC = () => {
   const [endVerse, setEndVerse] = useState(1);
   const [defaultVersion, setDefaultVersion] = useState<string>("NIV");
   const [additionalVersions, setAdditionalVersions] = useState<string[]>([]);
+  const [invitedUsers, setInvitedUsers] = useState<string[]>([]);
+  const [inviteEmail, setInviteEmail] = useState<string>('');
 
   const router = useRouter();
 
@@ -82,6 +84,21 @@ const CreateStudyForm: React.FC = () => {
     return false;
   };
 
+  const handleInviteEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInviteEmail(event.target.value);
+  };
+
+  const handleAddInvite = () => {
+    if (inviteEmail && !invitedUsers.includes(inviteEmail)) {
+      setInvitedUsers([...invitedUsers, inviteEmail]);
+      setInviteEmail('');
+    }
+  };
+
+  const handleRemoveInvite = (email: string) => {
+    setInvitedUsers(invitedUsers.filter((user) => user !== email));
+  };
+
   const handleSubmit = async () => {
     // Gather form data into an object
     const studyData = {
@@ -94,6 +111,7 @@ const CreateStudyForm: React.FC = () => {
       endVerse,
       defaultVersion,
       additionalVersions,
+      users: invitedUsers,
     };
     try {
       // Call the handler to create a new study
@@ -121,7 +139,6 @@ const CreateStudyForm: React.FC = () => {
           onChange={handleTitleChange}
           fullWidth
           required
-          error
         />
       </FormControl>
 
@@ -135,8 +152,7 @@ const CreateStudyForm: React.FC = () => {
                 id="demo-native-select"
                 label="Start Book"
                 onChange={handleStartBookChange}
-                required
-                error 
+                required 
                 sx={{ minWidth: 120 }}>
           {books.map((book) => (
             <MenuItem key={book.name} value={book.name}>
@@ -152,8 +168,7 @@ const CreateStudyForm: React.FC = () => {
                   id="demo-simple-select"
                   label="Start Chapter" 
                   onChange={handleStartChapterChange} 
-                  required
-                  error 
+                  required 
                   sx={{ minWidth: 120 }}>
             {getChapters(startBook).map((chapter, index) => (
               <MenuItem key={chapter.chapter} value={index + 1}>
@@ -170,8 +185,7 @@ const CreateStudyForm: React.FC = () => {
                   id="demo-simple-select"
                   label="Start Verse"
                   onChange={handleStartVerseChange} 
-                  required
-                  error 
+                  required 
                   sx={{ minWidth: 120 }}>
             {Array.from({ length: Number(getChapters(startBook)[startChapter - 1]?.verses) }, (_, i) => i + 1).map((verse) => (
               <MenuItem key={verse} value={verse}>
@@ -192,8 +206,7 @@ const CreateStudyForm: React.FC = () => {
                 id="demo-native-select"
                 label="End Book"
                 onChange={handleEndBookChange} 
-                required
-                error 
+                required 
                 sx={{ minWidth: 120 }}>
           {books.map((book) => (
             <MenuItem key={book.name} value={book.name} disabled={book.index < books.findIndex((b) => b.name === startBook)}>
@@ -206,14 +219,13 @@ const CreateStudyForm: React.FC = () => {
         <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
           <InputLabel id="demo-simple-select-label">End Chapter</InputLabel>
           <Select value={endChapter.toString()} 
-                  id="demo-native-select"
+                  id="demo-simple-select"
                   label="End Chapter"
                   onChange={handleEndChapterChange} 
-                  required
-                  error 
+                  required 
                   sx={{ minWidth: 120 }}>
             {getChapters(endBook).map((chapter, index) => (
-              <MenuItem key={chapter.chapter} value={index + 1} disabled={endBook === startBook && index + 1 < startChapter}>
+              <MenuItem key={chapter.chapter} value={index + 1}>
                 {chapter.chapter}
               </MenuItem>
             ))}
@@ -224,14 +236,13 @@ const CreateStudyForm: React.FC = () => {
         <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
           <InputLabel id="demo-simple-select-label">End Verse</InputLabel>
           <Select value={endVerse.toString()} 
-                  id="demo-native-select"
+                  id="demo-simple-select"
                   label="End Verse"
                   onChange={handleEndVerseChange} 
-                  required
-                  error 
+                  required 
                   sx={{ minWidth: 120 }}>
             {Array.from({ length: Number(getChapters(endBook)[endChapter - 1]?.verses) }, (_, i) => i + 1).map((verse) => (
-              <MenuItem key={verse} value={verse} disabled={endBook === startBook && endChapter === startChapter && verse < startVerse}>
+              <MenuItem key={verse} value={verse}>
                 {verse}
               </MenuItem>
             ))}
@@ -239,64 +250,81 @@ const CreateStudyForm: React.FC = () => {
         </FormControl>
       )}
 
-      {/* Version Selection */}
-      <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
-        <InputLabel id="default-version-label">Default Version</InputLabel>
-        <Select
-          labelId="default-version-label"
-          value={defaultVersion}
-          onChange={(event) => setDefaultVersion(event.target.value as string)}
-          required
-          error 
-          label="Default Version"
-        >
-          <MenuItem value="ESV">ESV</MenuItem>
-          <MenuItem value="NKJV">NKJV</MenuItem>
-          <MenuItem value="NIV">NIV</MenuItem>
-          <MenuItem value="CSB">CSB</MenuItem>
-        </Select>
-      </FormControl>
-      
-      {/* Additional Versions */}
-      <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
-        <InputLabel id="additional-versions-label">Additional Versions</InputLabel>
-        <Select
-          labelId="additional-versions-label"
-          value=""
-          onChange={(event) => {
-            const version = event.target.value as string;
-            if (!additionalVersions.includes(version)) {
-              setAdditionalVersions([...additionalVersions, version]);
-            }
-          }}
-          label="Additional Versions"
-        >
-          {["ESV", "NKJV", "NIV", "CSB"].map((version) => (
-            <MenuItem key={version} value={version} disabled={version == defaultVersion}>
+      {/* Default Version */}
+      <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
+        <InputLabel id="demo-simple-select-label">Default Version</InputLabel>
+        <Select value={defaultVersion} 
+                id="demo-simple-select"
+                label="Default Version"
+                onChange={(e: SelectChangeEvent<string>) => setDefaultVersion(e.target.value)} 
+                sx={{ minWidth: 120 }}>
+          {['NIV', 'ESV', 'KJV'].map((version) => (
+            <MenuItem key={version} value={version}>
               {version}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
 
-      <Box sx={{ mt: 2 }}>
-        {additionalVersions.map((version, index) => (
-          <Chip
-            key={index}
-            label={version}
-            onDelete={() =>
-              setAdditionalVersions(additionalVersions.filter((v) => v !== version))
-            }
-            sx={{ m: 0.5 }}
-          />
+      {/* Additional Versions */}
+      <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
+        <InputLabel id="demo-simple-select-label">Additional Versions</InputLabel>
+        <Select
+          multiple
+          value={additionalVersions}
+          id="demo-multiple-select"
+          label="Additional Versions"
+          onChange={(e: SelectChangeEvent<string[]>) => setAdditionalVersions(e.target.value as string[])}
+          renderValue={(selected) => (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {selected.map((value) => (
+                <Chip key={value} label={value} />
+              ))}
+            </Box>
+          )}
+          sx={{ minWidth: 120 }}
+        >
+          {['NIV', 'ESV', 'KJV'].map((version) => (
+            <MenuItem key={version} value={version}>
+              {version}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      {/* Invite Users */}
+      <Typography variant="h6" component="h3" sx={{ mt: 2 }}>
+        Invite Users
+      </Typography>
+      <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
+        <TextField
+          label="Invite by Email"
+          value={inviteEmail}
+          onChange={handleInviteEmailChange}
+          fullWidth
+        />
+        <Button variant="contained" onClick={handleAddInvite} sx={{ mt: 1 }}>
+          Add
+        </Button>
+      </FormControl>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+        {invitedUsers.map((email) => (
+          <Chip key={email} label={email} onDelete={() => handleRemoveInvite(email)} />
         ))}
       </Box>
 
-      <Box sx={{ mt: 3 }}>
-        <Button variant="contained" color="primary" fullWidth onClick={handleSubmit} disabled={!isStartBeforeEnd()}>
-          Create Study
-        </Button>
-      </Box>
+      {/* Submit Button */}
+      <Button
+        type="button"
+        fullWidth
+        variant="contained"
+        color="primary"
+        onClick={handleSubmit}
+        disabled={!isStartBeforeEnd()}
+        sx={{ mt: 3, mb: 2 }}
+      >
+        Create Bible Study
+      </Button>
     </Container>
   );
 };

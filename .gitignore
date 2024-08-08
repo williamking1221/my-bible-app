@@ -40,7 +40,6 @@ next-env.d.ts
 
 # private-keys
 bible-study-manager-firebase-adminsdk-eynig-7f87180220.json
-src/utils/uploadBibleData.ts
 src/utils/updateBibleData.ts
 
 # data

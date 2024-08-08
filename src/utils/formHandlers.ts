@@ -1,12 +1,14 @@
-// src/utils/formHandlers.ts
-import { db } from './firebaseConfig'; // Assuming this is the Firestore instance
+import { db, auth } from './firebaseConfig'; // Assuming this is the Firestore instance
 import { addDoc, collection } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { BibleStudy } from '../types'; // Define this type based on your schema
 
 export const createStudyHandler = async (studyData: BibleStudy) => {
   try {
     // Validate and process studyData if necessary
-    const { title, startBook, startChapter, startVerse, endBook, endChapter, endVerse, defaultVersion, additionalVersions } = studyData;
+    const { title, startBook, startChapter, startVerse, endBook, endChapter, endVerse, defaultVersion, additionalVersions, users } = studyData;
+
+    const currentUser = getAuth().currentUser;
 
     // Create a new document in Firestore
     const docRef = await addDoc(collection(db, 'bibleStudies'), {
@@ -21,6 +23,7 @@ export const createStudyHandler = async (studyData: BibleStudy) => {
       additionalVersions,
       createdAt: new Date(),
       updatedAt: new Date(),
+      users: [currentUser, ...users],
     });
 
     console.log("Document written with ID: ", docRef.id);
